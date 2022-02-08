@@ -8,10 +8,6 @@ import './styles/styles.css'
 render(
   <BrowserRouter>
     <React.StrictMode>
-      <h1>Todo App</h1>
-      <nav>
-        <NavLink to="/">Todo App</NavLink>
-      </nav>
       <Routes>
         <Route path="/" element={<App />} />
       </Routes>
