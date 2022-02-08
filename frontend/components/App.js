@@ -1,3 +1,4 @@
+import axios from 'axios'
 import React from 'react'
 
 
@@ -12,7 +13,14 @@ export default class App extends React.Component {
   state = initialState
 
   componentDidMount(){
-    this.state.tasks
+    axios.get(URL)
+    .then(res=>{
+      console.log(res)
+      this.setState({...this.state, tasks: res.data.data})
+    })
+    .catch(err=>{
+      console.log(err)
+    })
   }
 
   onChange = e => {
@@ -21,40 +29,33 @@ export default class App extends React.Component {
   }
   
 
-  onSubmit = event => {
-    event.preventDefault()
+  onSubmit = e => {
+    e.preventDefault()
     const newTodo = {
-      id: Date.now(),
-      task: this.state.taskInput,
+      name: this.state.taskInput,
       completed: false
 
     }
-    this.setState({ ...this.state, tasks: [ ...this.state.tasks, newTodo], taskInput: ''})
-  }
-
-  onClick = (id) => {
-    this.setState({ ...this.state,
-      tasks: this.state.tasks.map(task => {
-        if (task.id === id) {
-          return {...task, completed: !task.completed}
-        } else {
-          return task
-        }
-      })
+    axios.post(URL, newTodo)
+    .then(res =>{
+      console.log(res.data.data)
+      this.setState({ ...this.state, tasks: res.data})
     })
+    .catch(err =>{
+      console.log(err)
+    })
+    
   }
-
- 
-  
+   
   render() {
     return (
       <div>
         <div>
          <ul>
            {
-             this.state.tasks.map(task => (
-              <li key={task.id} onClick={() => this.onClick(task.id)}> {task.task}</li>
-              ))
+             this.state.tasks.map(task => 
+              <li key={task.id} > {task.name}</li>
+             )
            }
          </ul>
         </div>
