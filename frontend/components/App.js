@@ -2,25 +2,33 @@ import axios from 'axios'
 import React from 'react'
 
 
-const initialState ={
-  tasks: [{task: 'Move the car', id:2343 , completed: false}]
-}
+
 
 const URL = 'http://localhost:9000/api/todos'
 
 
 export default class App extends React.Component {
-  state = initialState
+  state = {
+    todos: [],
+    error: 'NO errors',
+    taskInput:''
+
+  }
+
+  fetchAllTodos = () =>{
+    axios.get(URL)
+    .then(res => {
+      this.setState({...this.state, todos: res.data.data
+      })
+    })
+    .catch(error => {
+      console.log(error.response.status)
+      this.setState({...this.state, error: error.response.status})
+    })
+  }
 
   componentDidMount(){
-    axios.get(URL)
-    .then(res=>{
-      console.log(res)
-      this.setState({...this.state, tasks: res.data.data})
-    })
-    .catch(err=>{
-      console.log(err)
-    })
+    this.fetchAllTodos()
   }
 
   onChange = e => {
@@ -38,24 +46,35 @@ export default class App extends React.Component {
     }
     axios.post(URL, newTodo)
     .then(res =>{
-      console.log(res.data.data)
-      this.setState({ ...this.state, tasks: res.data})
+      this.setState({ ...this.state, todos:[...this.state.todos, res.data.data], taskInput:' '})
+     
     })
     .catch(err =>{
       console.log(err)
     })
     
   }
+
+  toggleCompleted = id => () => {
+    axios.patch(`${URL}/${id}`)
+    .then(res =>{
+      this.fetchAllTodos()
+    })
+    .catch(err=>{
+      console.log(err)
+    })
+  }
    
   render() {
     return (
       <div>
         <div>
+          <div>Error: {this.state.error}</div>
          <ul>
            {
-             this.state.tasks.map(task => 
-              <li key={task.id} > {task.name}</li>
-             )
+             this.state.todos.map(task => {
+              return  <li key={task.id} onClick={this.toggleCompleted(task.id)} > {task.name} {task.completed ? '👍' : ''}</li>
+                })
            }
          </ul>
         </div>
